@@ -1,0 +1,27 @@
+▼ユーザー登録の処理の流れ
+▫️使用するファイル
+・View       signup.php
+・Controller Signup.php
+・Model      User.php
+
+1, ユーザーがsignup.phpからユーザー情報を入力
+2, signup.phpでは、Signup.phpのSingupクラスをインスタンス化していて、Signupクラスのrunメソッドを呼び出している
+3, runメソッドの役割は、POST送信されたらpostProcessメソッドを実行すること
+4, この時点で、ユーザーが入力した内容というのは、postProcessメソッドへ送信されていることになる
+5, postProcessメソッドでは、User.phpのUserクラスをインスタンス化していて、Userクラスのcreateメソッドを呼び出している
+6, この時点で、ユーザーが入力した内容というのは、createメソッドの引数$valuesに格納されている
+7, createメソッドでは、6番を紐づけるために「create($values)」という記述がされている
+8, createメソッドの以下の点が紐づいている
+・SQLの「:username,:email,:password」
+・executeの「:username,:email,:password」
+・加えて、executeの「:username,:email,:password」には、ユーザーが入力している情報が格納されている
+
+$stmt = $this->db->prepare(
+  "INSERT INTO users (username,email,password,created,modified)
+  VALUES (:username,:email,:password,now(),now())"
+);
+$res = $stmt->execute([
+  ':username' => $values['username'],
+  ':email' => $values['email'],
+  ':password' => password_hash($values['password'], PASSWORD_DEFAULT)
+]);
